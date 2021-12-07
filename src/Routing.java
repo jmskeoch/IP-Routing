@@ -9,14 +9,19 @@ public class Routing {
     public static void main(String[] args) {
         Routing routes = new Routing();
         routes.insert("255.0.0.0");
-        routes.insert("10.8.52.3");
+        routes.insert("10.8.52.3"); // INSERT THREE IP ADDRESSES
         routes.insert("10.8.10.8");
 
-        routes.print();
+        routes.blacklist("192.3.23.4"); // INSERT THEN BLACKLIST THIS IP
+        routes.blacklist("10.8.52.3"); // BLACKLIST THIS IP
 
-        routes.blacklist("10.8.52.3");
+        routes.print();
+        System.out.println();
+
+        routes.accept("192.3.23.4");
 
         routes.print();
+        System.out.println();
     }
 
     public void insert(String data) { insert(data, root); } // Wrapper method
@@ -103,7 +108,9 @@ public class Routing {
      * @param str The recursive portion containing the actual data to print
      */
     public void print(Node current, String str) {
-        if (current.isIp && !current.blacklisted) System.out.println(str);
+        if (current.isIp) {
+            if (!current.blacklisted) System.out.println(str); else System.out.println(str + "  [BLACKLISTED]  ");
+        }
 
         for(Node node: current.children) {
             if (node != null) print(node, str + node.data);
@@ -114,6 +121,7 @@ public class Routing {
     public void blacklist(String data) {
         blacklist(data, root);
     }
+
     /**
      * This method searches through the tree, inserts if the parameter isn't already existing, and marks the node as blacklisted
      * @param data The address to blacklist in 192.2.2.4 form
@@ -124,9 +132,38 @@ public class Routing {
 
         data = data.replace(".", "");
         Node node = current.children[Integer.parseInt(data.substring(0, 1))];
-        if (node == null) return;
-        if (node.data.equals(data)) node.blacklisted = true;
-        if (data.startsWith(node.data)) blacklist(data.substring(node.data.length()), node);
+        insert(data, current);
+
+        if (node.data.equals(data)) {
+            node.blacklisted = true;
+        }
+        else if (data.startsWith(node.data)){
+            blacklist(data.substring(node.data.length()), node);
+        }
+    }
+
+    public void accept(String data) {
+        accept(data, root);
+    }
+
+    /**
+     * This method searches through the tree, and un blacklists a node, allowing its acceptance in the program
+     * @param data The IP address to remove from the blacklist
+     * @param current A recursive Radix Node value
+     */
+    public void accept(String data, Node current) {
+        if (data == null || data.length() == 0) return;
+
+        data = data.replace(".", "");
+        Node node = current.children[Integer.parseInt(data.substring(0, 1))];
+        insert(data, current);
+
+        if (node.data.equals(data)) {
+            node.blacklisted = false;
+        }
+        else if (data.startsWith(node.data)){
+            accept(data.substring(node.data.length()), node);
+        }
     }
 }
 
