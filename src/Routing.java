@@ -81,8 +81,14 @@ public class Routing {
 
     public boolean search(String data) {
         return search(data, root);
-    }
+    } // Wrapper method
 
+    /**
+     * This method, given an IP, recursively traverses through the radix tree and returns if it exists.
+     * @param data The data (IP) to search for in the radix tree
+     * @param current The current node (recursive parameter)
+     * @return If the IP exists in the data structure or not
+     */
     public boolean search(String data, Node current) {
         if (data == null || data.length() == 0) return false;
 
@@ -172,15 +178,15 @@ public class Routing {
  * This class needs two instance variables: the data it stores, and a list for its children
  */
 class Node {
-    String data;
-    boolean isIp;
-    boolean blacklisted;
-    Node[] children;
+    String data; // The ip the node will store
+    boolean isIp; // If it is the last node of the IP
+    boolean blacklisted; // If the IP is blacklisted
+    Node[] children; // The radix node children array
 
     public Node() {
         this.data = "";
         this.isIp = false;
         this.blacklisted = false;
-        this.children = new Node[10];
+        this.children = new Node[10]; // Length 10, since data is stored as characters 0-9 (10 different digits, each as their own index)
     }
 }
